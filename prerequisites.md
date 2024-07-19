@@ -37,21 +37,21 @@ Django 是一个 Python 的 Web 框架. 用 c7wgg 的话说,
 在本节课程中, 你将学到 (不分先后顺序):
 
 - Python 的部分高级用法
-  - Decorator 装饰器
-  - 如何动态传参
+    - Decorator 装饰器
+    - 如何动态传参
 
 - 后端开发的基本模式与流程
-  - MVC 模式
-  - 后端的作用与对后端的期望
+    - MVC 模式
+    - 后端的作用与对后端的期望
 
 - 前后端通信的基本范式
-  - RESTful API
+    - RESTful API
 
 - Django 的用法
-  - Django 的工程结构
-  - Django 的 MVC 模式
-    - Model
-    - Template (View), 这在前后端分离的开发范式里用不着
-    - View (Controller)
-  - Django 的 ORM
-  - Django 的单元测试
+    - Django 的工程结构
+    - Django 的 MVC 模式
+        - Model
+        - Template (View), 这在前后端分离的开发范式里用不着
+        - View (Controller)
+    - Django 的 ORM
+    - Django 的单元测试
