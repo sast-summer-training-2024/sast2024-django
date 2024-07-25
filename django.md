@@ -173,7 +173,7 @@ class Course(models.Model):
 
 其中的 `CharField` 代表一个变长字符串, `max_length` 是这个字符串的最大长度, `primary_key=True` 代表着这是数据库的主键且具有唯一性. 在实际的数据库中, 这个字段会被存储为 `VARCHAR(max_length)`.
 
-**但是**: 在 SQLite 中, 虽然 `id` max_length 是 10, 你依然可以存一个长度大于 10 的字符串进去而不引发错误. 但这并不代表着在 _任意_ DB Backend 中都可以这样! 换句话说, Django 可能并不能完整校验你的数据, 导致你的代码在不同的数据库后端中可能会有不同的行为. 所以 **你需要在代码中显式校验你的数据**
+**但是**: 在 SQLite 中, 虽然 `id` max*length 是 10, 你依然可以存一个长度大于 10 的字符串进去而不引发错误. 但这并不代表着在 *任意\_ DB Backend 中都可以这样! 换句话说, Django 可能并不能完整校验你的数据, 导致你的代码在不同的数据库后端中可能会有不同的行为. 所以 **你需要在代码中显式校验你的数据**
 
 ![varchar(10) ID](./varchar-10-id.png)
 
@@ -296,6 +296,26 @@ urlpatterns = [
 1. `path('admin/', admin.site.urls)` 定义了访问 `/admin/` 时, Django 会调用 `admin.site.urls`, 进入标准的 Django Admin 管理面板.
 2. `path('api/', include('course.urls'))` 定义了访问 `/api/` 时, Django 会调用 `course.urls`.
 3. `re_path('.*?', notFound)` 定义了访问其他路径时, Django 会调用 `notFound` 这个视图, 展示 404 页面.
+
+### URL 参数 / Body 参数的路由
+
+我们的小作业中并没有涉及太多的 URL 参数和 Body 参数. 但是实际项目中这还是挺常见的.
+
+Django 支持两种 URL 传参, 一种是通过 URL 的路径来传参, 一种是通过 URL 的查询参数来传参. 比如如果我希望管理员能单独查看每一个用户的选课情况:
+
+```python
+path('/admin/student/<str:student_id>/', views.studentCourseDetail)
+```
+
+其中的 `<str:student_id>` 代表着这个位置的参数会被 _按 keyword_ 传递给 `views.studentCourseDetail` 函数. 你可以在函数中通过 `student_id` 参数来获取这个参数.
+
+而对于查询参数 (Query String), Django 会将查询参数解析为一个字典放在 `request.GET` 中. **注意! 就算是 POST 请求, 查询参数也在 `request.GET` 中**.
+
+**对于 POST 请求**, Django 会根据 `Content-Type` 头来解析请求体. 对于 `application/x-www-form-urlencoded` 和 `multipart/form-data` 类型的请求, Django 会将请求体解析为一个字典放在 `request.POST` 中; 而对于其它类型的请求, Django (应该) 不会做处理.
+
+对于 PATCH / PUT / DELETE 请求, Django **不会自动处理** 请求体.
+
+还有几个需要注意的地方, 首先是 Django 不会自动处理 Options 请求, 你需要自己处理; 然后是当你 _第一次_ 访问 `request.POST` 时, Django 才会自动解析请求体 (也就是说, 这是一个懒加载的过程), 且如果自动解析失败, Django **会抛出异常**.
 
 ## View 视图
 
