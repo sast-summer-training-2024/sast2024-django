@@ -226,6 +226,23 @@ Migration 文件中记录了 Model 的定义, 以及这个定义和上一个 Mig
 
 通过 Migration, Django 提供了一种机制, 使得在项目开发的过程中, 数据库结构的变更能正确应用到生产环境的数据库中而不损坏数据. 这也是为什么 **你不应该把 migrations 文件夹加入 .gitignore**.
 
+### 数据库的一致性
+
+在 Django 中, 除了部分操作 (create / update / delete) 之外, 对 object 的修改必须通过调用 `save()` 来保存; 而以上的操作都是实时写入 DB 的 (Auto-Commit).
+
+数据库有关的操作都不可避免地存在可能的异常, 不管是由于网络问题, 由于自身的数据校验问题, 或者并发问题. 如果在部分操作已经写入数据库时出现异常, 则可能导致数据库的不一致问题.
+
+因此, 期望的数据库操作应该是 **原子的** (Atomic), 即要么全部成功, 要么全部失败. 可以通过我们自己写 Revert 逻辑, 也可以通过 Django 提供的 [`transaction.atomic`](https://docs.djangoproject.com/en/5.0/topics/db/transactions/) 来实现.
+
+在 `atomic` 块中的所有数据库操作要么全部成功; 要么全部失败. 如果在 `atomic` 块中的某个地方抛出异常, 数据库会回滚到 `atomic` 块开始的状态. 这有效解决了因为奇怪问题导致的数据库不一致错误.
+
+```python
+# All operations in this block are atomic
+with transaction.atomic():
+    u = User.objects.create(username='john')
+    p = Profile.objects.create(user=u)
+```
+
 ## Admin 管理面板
 
 Django 提供了一个内建的管理面板以方便管理数据库中的数据.
